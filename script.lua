@@ -414,6 +414,39 @@ end
 local combat_module = require(Services.Combat)
 local CalculateCombatStyle = combat_module.CalculateCombatStyle
 
+-- Walkspeed
+local Walkslider = Domain.Player.Speed.Action
+local Walklabel = Domain.Player.Speed.Title
+local Walkbar = Domain.Player.Speed.Action.Amount
+
+local uis = game:GetService('UserInputService')
+local Walkpadding = {}
+local Walkactive
+local Walklimit = {16, 225}
+
+function WalkupdatePadding()
+    Walkpadding = {
+        ['Start'] = Walkslider.AbsolutePosition.X,
+        ['End'] = Walkslider.AbsolutePosition.X + Walkslider.AbsoluteSize.X
+    }
+end
+WalkupdatePadding()
+
+function WalkupdateSlider()
+    local posX = math.clamp(mouse.X, Walkpadding.Start, Walkpadding.End)
+    local inverse_interpolation = (posX - Walkpadding.Start) / (Walkpadding.End - Walkpadding.Start)
+    TweenService:Create(Walkbar, TweenInfo.new(.7,Enum.EasingStyle.Quint),  {Size = UDim2.new(inverse_interpolation, 0, 1, 0)}):Play()
+    local value = math.floor(Walklimit[1] + (Walklimit[2] - Walklimit[1]) * inverse_interpolation + .5)
+    Walklabel.Text = value.." walkspeed"
+    LocalPlayer.Character:WaitForChild("Humanoid").WalkSpeed = value
+end
+
+Walkslider.MouseButton1Down:Connect(function()
+    Walkactive = true
+    WalkupdateSlider()
+end)
+
+
 local settings = { -- defaults
     Autofarm = false,
     Autofarm_Y_Offsets = {},
