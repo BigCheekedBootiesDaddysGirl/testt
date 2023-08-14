@@ -1223,7 +1223,7 @@ do
     combat:AddSlider({
         Name = "Kill Aura Range",
         Min = 0,
-        Max = 50,
+        Max = 100,
         Default = settings.KA_Range,
         Color = Color3.new(255, 255, 255),
         Increment = 1,
