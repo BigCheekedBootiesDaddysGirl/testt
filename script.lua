@@ -1963,17 +1963,51 @@ do
     })
 
     Character_tab:AddSlider({
-        Name = "WalkSpeed",
-        Min = 0,
-        Max = 200,
-        Default = walkspeed,
-        Color = Color3.new(255, 255, 255),
-        Increment = 1,
-        ValueName = "Speed",
-        Callback = function(speed)
-            walkspeed = speed
+    Name = "WalkSpeed",
+    Min = 0,
+    Max = 200,
+    Default = walkspeed,
+    Color = Color3.new(255, 255, 255),
+    Increment = 1,
+    ValueName = "Speed",
+    Callback = function(speed)
+        walkspeed = speed
+
+        local Walkslider = Domain.Player.Speed.Action
+        local Walklabel = Domain.Player.Speed.Title
+        local Walkbar = Domain.Player.Speed.Action.Amount
+
+        local uis = game:GetService('UserInputService')
+        local Walkpadding = {}
+        local Walkactive
+        local Walklimit = {16, 225}
+
+        function WalkupdatePadding()
+            Walkpadding = {
+                ['Start'] = Walkslider.AbsolutePosition.X,
+                ['End'] = Walkslider.AbsolutePosition.X + Walkslider.AbsoluteSize.X
+            }
         end
-    })
+        WalkupdatePadding()
+
+        function WalkupdateSlider()
+            local posX = math.clamp(mouse.X, Walkpadding.Start, Walkpadding.End)
+            local inverse_interpolation = (posX - Walkpadding.Start) / (Walkpadding.End - Walkpadding.Start)
+            TweenService:Create(Walkbar, TweenInfo.new(.7,Enum.EasingStyle.Quint),  {Size = UDim2.new(inverse_interpolation, 0, 1, 0)}):Play()
+            local value = math.floor(Walklimit[1] + (Walklimit[2] - Walklimit[1]) * inverse_interpolation + .5)
+            Walklabel.Text = value.." walkspeed"
+            LocalPlayer.Character:WaitForChild("Humanoid").WalkSpeed = value
+        end
+
+        Walkslider.MouseButton1Down:Connect(function()
+            Walkactive = true
+            WalkupdateSlider()
+        end)
+
+        -- You might need to add a way to stop the walkspeed adjustment when the slider is not being dragged, and also handle other events and interactions.
+        -- The provided implementation assumes certain variables and interactions that may need adaptation for your specific use case.
+    end
+})
 end
 
 do
